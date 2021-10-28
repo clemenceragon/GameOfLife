@@ -8,67 +8,70 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <iterator>
 
-// Field dimensions
-const int WIDTH = 15;
-const int HEIGHT = 10;
+using grid = typename std::vector <std::vector<bool>>;
 
 // Iterations of the game
 const int ITERATIONS = 20;
 
 // Grid Initialisation
-std::vector< std::vector<bool> > grid = {};
+std::vector<std::vector<bool>> game = {};
 
-void printGrid(std::vector< std::vector<bool>>);
-void determineGrid(std::vector< std::vector<bool>> &);
-bool isBorder(int, int);
-int nbNeighboor(std::vector< std::vector<bool>>, int, int);
+// Declaration functions
+void printGrid(std::vector<std::vector<bool>>);
+void determineGrid(std::vector<std::vector<bool>>&);
+int nbNeighboor(grid, int, int);
 
 
 int main() {
-
-        std::string line = {};
+;
+	std::string line = {};
 	std::ifstream file("grid.txt");
 
 	// Reading the file and filling the grid
 	if (file.is_open())
 	{
-		while (std::getline(file, line))
-		{
-			std::vector <bool> vectorInit = { };
-			vectorInit.reserve(line.size());
+		  while (std::getline(file, line)) {
+	    
+				std::vector <bool> vectorInit = { };
+				vectorInit.reserve(line.size());
 
-			for (auto a : line) {
-				vectorInit.push_back(a == '1');
-			}
-			grid.push_back(vectorInit);
-		}
-		file.close();
+				for (auto a : line) {
+					vectorInit.push_back(a == '1');
+				}
+				game.push_back(vectorInit);
+			
+		  }
+	  file.close();
 	}
 	else {
 		std::cout << "Error : File can't be open !" << std::endl;
 		return 0;
 	}
 
-	file.close();
-	printGrid(grid);
+	// Print the original grid
+	printGrid(game);
 
 	for (int i = 0; i < ITERATIONS; i++) {
-		determineGrid(grid);
-		printGrid(grid);
-		sleep(10);
-		std::cout << std::endl;
+		determineGrid(game);
+		printGrid(game);
+		Sleep(1000);
+		// sleep(1): // For Unix
+		//std::system("clear");
 	}
 
 
 }
 
-void printGrid(std::vector< std::vector<bool>> grid) {
+// Function for printing the grid
+void printGrid(grid game_) {
 
-	for (int i = 0; i < HEIGHT; i++) {
-		for (int j = 0; j < WIDTH; j++) {
+	for (unsigned int i = 0; i < game_.size(); i++) {
 
-			if (grid[i][j])
+		for (unsigned int j = 0; j < game_[i].size(); j++) {
+
+			if (game_[i][j])
 				std::cout << "0";
 			else std::cout << ".";
 		}
@@ -77,45 +80,35 @@ void printGrid(std::vector< std::vector<bool>> grid) {
 	}
 }
 
-// CHECK IF THE POSITION IS A BORDER
-bool isBorder(int x, int y) {
-	return (x == 0 || x == HEIGHT - 1 || y == 0 || y == WIDTH - 1);
-}
-
-// CHECK THE NUMBER OF ALIVE NEIGHBOOR
-int nbNeighboor(std::vector< std::vector<bool>> grid, int x, int y) {
+// Function that count the number of alive neighboor
+int nbNeighboor(grid game_, int x, int y) {
 	int nbAlive = 0;
 
-	for (int i = x-1; i <= x+1; i++) {
+	for (int i = x - 1; i <= x + 1; i++) {
 		for (int j = y - 1; j <= y + 1; j++) {
-			if (grid[i][j])
+			if (game_[i][j])
 				nbAlive++;
 		}
 	}
-
+	if (game_[x][y]) return nbAlive--;
 	return nbAlive;
 }
 
-// DETEMINE THE NEXT GRID
-void determineGrid(std::vector< std::vector<bool>> &gridOne) {
-	std::vector< std::vector<bool>> gridTwo = gridOne;
+// Function that determine the next grid
+void determineGrid(std::vector< std::vector<bool>>& gameOne) {
+	grid gameTwo = gameOne;
 
-	for (int i = 0; i < HEIGHT; i++) {
-		for (int j = 0; j < WIDTH; j++) {
-			
-			// Check if it's a border
-			if (!isBorder(i, j)) {
+	for (unsigned int i = 1; i < gameTwo.size()-1; i++) {
 
-				int nbNeigh = nbNeighboor(gridTwo, i, j);
+		for (unsigned int j = 1; j < gameTwo[i].size()-1; j++) {
 
-				if (    (gridTwo[i][j] && (nbNeigh == 3 || nbNeigh == 4))
-					|| (!gridTwo[i][j] &&  nbNeigh == 3))
-					gridOne[i][j] = true;
+			int nbNeigh = nbNeighboor(gameTwo, i, j);
+			if ((gameTwo[i][j] && (nbNeigh == 2 || nbNeigh == 3))
+				|| (!gameTwo[i][j] && nbNeigh == 3)) {
 
-				else gridOne[i][j] = false;
+				gameOne[i][j] = true;
 			}
-			else gridOne[i][j] = false;
-
+			else gameOne[i][j] = false;
 		}
 	}
 }
