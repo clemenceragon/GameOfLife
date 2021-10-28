@@ -12,4 +12,5 @@ Rules
 
 4.Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
-![GameOfLife](https://user-images.githubusercontent.com/64210573/139256536-a2236c80-59db-45bc-b5be-de9734536fe5.png)
+
+          ![GameOfLife2](https://user-images.githubusercontent.com/64210573/139256754-2f58bb8e-aca4-46d0-bfe8-bd24a025bef0.png)
